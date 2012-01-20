@@ -1,0 +1,55 @@
+* HBase FileInputFormats for RHIPE
+This is a JAR file which can be included in the command =rhmr= to
+access HBase databases. 
+
+The FileInputFormats are specific to Mozilla's Socorro Crash Report
+Hbase file structure and Telemetry schema.
+
+The class =RHHBaseGeneral= should work with String keys and general
+values. The returned value is a list of lists. Each sublist has the
+names attribute equal to =columnfamily:columnname= . The values are
+raw bytes (and if the raw bytes correspond to Java strings, they can
+be converted using the R function =rawToChar=).
+
+Some sample R code
+
+#+BEGIN_CODE
+library(Rhipe)
+rhinit()
+options(width=200)
+rhoptions(runner="sh ./Rfolder/Rdist/mscript.sh")
+
+hbasemap <- function(tablename, colspec, rows,caching=3L, cacheBlocks=TRUE){
+  mapred <- list()
+  mapred$rhipe.hbase.tablename <- as.character(tablename[1])
+  mapred$rhipe.hbase.colspec <- paste(colspec,collapse=",")
+  mapred$rhipe.hbase.rowlim.start <-rows[1] 
+  mapred$rhipe.hbase.rowlim.end <- rows[2]
+  mapred$rhipe.hbase.mozilla.cacheblocks <- sprintf("%s:%s",as.integer(caching),as.integer(cacheBlocks))
+  mapred$rhipe.hbase.mozilla.prefix <- "byteprefix"
+  mapred$rhipe_inputformat_class <- 'org.godhuli.rhipe.hbase.RHCrashReportTableInputFormat'
+  mapred$rhipe_inputformat_keyclass <- 'org.godhuli.rhipe.hbase.RHBytesWritable'
+  mapred$rhipe_inputformat_valueclass <- 'org.godhuli.rhipe.hbase.RHResult'
+  mapred
+}
+
+mapred <- hbasemap("telemetry",colspec="data:json",rows=c("20120101","20120101"))
+mapred$mapred.reduce.tasks <- 0
+mapred$zookeeper.znode.parent <- "/research-hbase"
+mapred$hbase.zookeeper.quorum <- "node11.X.mozilla.com,node12.generic.X.mozilla.com,node13.X.mozilla.com"
+
+rhput("~/rhipecrashreport.jar","/user/sguha/tmp/")
+
+z <- rhmr(map=expression(
+    lapply(map.values,function(r){
+      rhcollect(NULL,r)
+    })
+    ),ofolder='/user/sguha/tmp/deletemeNOW'
+          ,inout=c(NA,'seq')
+          ,zips="/user/sguha/Rfolder.tar.gz"
+          ,jarfiles="/user/sguha/tmp/rhipecrashreport.jar",
+          ,jobname='Rhipe and Hbase?'
+          ,mapred=mapred)
+rhstatus(rhex(z,async=TRUE), mon.sec=10)
+#+END
+
