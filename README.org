@@ -13,7 +13,7 @@ be converted using the R function =rawToChar=).
 
 Some sample R code
 
-#+BEGIN_SRC 
+#+BEGIN_SRC R
 library(Rhipe)
 rhinit()
 options(width=200)
