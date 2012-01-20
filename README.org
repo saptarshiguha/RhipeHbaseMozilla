@@ -6,12 +6,13 @@ The FileInputFormats are specific to Mozilla's Socorro Crash Report
 Hbase file structure and Telemetry schema.
 
 The class =RHHBaseGeneral= should work with String keys and general
-values. The returned value is a list of lists. Each sublist has the
-names attribute equal to =columnfamily:columnname= . Each sublist
-entry has two elements (as is usual in RHIPE) - the key and value. The
-values are raw bytes (and if the raw bytes correspond to Java strings,
-they can be converted using the R function =rawToChar=). The keys are
-also raw bytes.
+values. The returned value is a list of lists. Each sublist
+entry has two elements (as is usual in RHIPE) - the key and value.
+
+The value (the second entry) has the names attribute equal to
+=columnfamily:columnname= .  The values are raw bytes (and if the raw
+bytes correspond to Java strings, they can be converted using the R
+function =rawToChar=). The keys are also raw bytes.
 
 Some sample R code
 
