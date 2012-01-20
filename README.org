@@ -13,7 +13,7 @@ be converted using the R function =rawToChar=).
 
 Some sample R code
 
-#+BEGIN_CODE
+#+BEGIN_SRC 
 library(Rhipe)
 rhinit()
 options(width=200)
@@ -51,5 +51,5 @@ z <- rhmr(map=expression(
           ,jobname='Rhipe and Hbase?'
           ,mapred=mapred)
 rhstatus(rhex(z,async=TRUE), mon.sec=10)
-#+END
+#+END_SRC
 
