@@ -51,5 +51,8 @@ z <- rhmr(map=expression(
           ,jobname='Rhipe and Hbase and Telemetry'
           ,mapred=mapred)
 rhstatus(rhex(z,async=TRUE), mon.sec=10)
+
+y=rhread('/user/sguha/tmp/deletemeNOW/p*', max=10)
+ w=lapply(y, function(r) lapply(r[[2]],rawToChar)) ## since in the map i output NULL, i dont care to rawToChar it
 #+END_SRC
 
