@@ -20,6 +20,7 @@ options(width=200)
 rhoptions(runner="sh ./Rfolder/Rdist/mscript.sh")
 
 hbasemap <- function(tablename, colspec, rows,caching=3L, cacheBlocks=TRUE){
+  ## This function can be used when ever accessing Hbase
   mapred <- list()
   mapred$rhipe.hbase.tablename <- as.character(tablename[1])
   mapred$rhipe.hbase.colspec <- paste(colspec,collapse=",")
@@ -33,13 +34,9 @@ hbasemap <- function(tablename, colspec, rows,caching=3L, cacheBlocks=TRUE){
   mapred
 }
 
-mapred <- hbasemap("telemetry",colspec="data:json",rows=c("20120101","20120101"))
-mapred$mapred.reduce.tasks <- 0
-mapred$zookeeper.znode.parent <- "/research-hbase"
-mapred$hbase.zookeeper.quorum <- "node11.X.mozilla.com,node12.generic.X.mozilla.com,node13.X.mozilla.com"
-
 rhput("~/rhipecrashreport.jar","/user/sguha/tmp/")
 
+mapred <- hbasemap("telemetry",colspec="data:json",rows=c("20120101","20120101"))
 z <- rhmr(map=expression(
     lapply(map.values,function(r){
       rhcollect(NULL,r)
@@ -48,7 +45,7 @@ z <- rhmr(map=expression(
           ,inout=c(NA,'seq')
           ,zips="/user/sguha/Rfolder.tar.gz"
           ,jarfiles="/user/sguha/tmp/rhipecrashreport.jar",
-          ,jobname='Rhipe and Hbase?'
+          ,jobname='Rhipe and Hbase and Telemetry'
           ,mapred=mapred)
 rhstatus(rhex(z,async=TRUE), mon.sec=10)
 #+END_SRC
