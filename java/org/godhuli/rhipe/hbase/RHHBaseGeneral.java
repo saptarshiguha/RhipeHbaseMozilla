@@ -184,10 +184,10 @@ public class RHHBaseGeneral  extends org.apache.hadoop.mapreduce.InputFormat<RHR
 			    }
 			    String[] x = conf.get("rhipe.hbase.mozilla.cacheblocks").split(":");
 			    scans = Util.generateScans(conf.get("rhipe.hbase.rowlim.start"),
-								conf.get("rhipe.hbase.rowlim.end"),
-								l,
-								Integer.parseInt(x[0]),
-								Integer.parseInt(x[1]) == 1? true: false);
+						       conf.get("rhipe.hbase.rowlim.end"),
+						       l,
+						       Integer.parseInt(x[0]),
+						       Integer.parseInt(x[1]) == 1? true: false);
 			} catch (Exception e) {
 				LOG.error("An error occurred.", e);
 			}

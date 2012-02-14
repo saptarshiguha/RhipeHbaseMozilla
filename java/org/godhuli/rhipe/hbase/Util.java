@@ -151,8 +151,8 @@ public class Util {
 	for (Pair<String,String> pair : columns) {
 	    s.addColumn(pair.getFirst().getBytes(), pair.getSecond().getBytes());
 	}
-	s.setStartRow(Bytes.toBytes(st));
-	s.setStopRow(Bytes.toBytes(en));
+	if(st != null) s.setStartRow(Bytes.toBytes(st));
+	if(en != null) s.setStopRow(Bytes.toBytes(en));
 	scans.add(s);
 	return scans.toArray(new Scan[scans.size()]);
     }

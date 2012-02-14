@@ -90,10 +90,16 @@ public class RHCrashReportTableInputFormat  extends org.apache.hadoop.mapreduce.
 	@Override
 	public RecordReader<RHRaw, RHResult> createRecordReader(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
 		if (scans == null) {
-			throw new IOException("No scans were provided");
+		    throw new IOException("No scans were provided");
 		}
 		if (table == null) {
-			throw new IOException("No table was provided.");
+		    String tableName = this.conf.get(INPUT_TABLE);
+		    try {
+			setHTable(new HTable(HBaseConfiguration.create(conf), tableName));
+		    } catch (Exception e) {
+			LOG.error(StringUtils.stringifyException(e));
+		    }
+		    if (table == null) throw new IOException("No table was provided and could not reinitialize.");
 		}
 		if (trr == null) {
 			trr = new TableRecordReader();
@@ -184,7 +190,7 @@ public class RHCrashReportTableInputFormat  extends org.apache.hadoop.mapreduce.
 			    for(int i=0;i < cols.length;i++) {
 				String[] x = cols[i].split(":");
 				l.add(new Pair<String,String>(x[0],x[1]));
-				LOG.info("Added "+x[0]+":"+x[1]);
+				// LOG.info("Added "+x[0]+":"+x[1]);
 			    }
 			    String[] x = conf.get("rhipe.hbase.mozilla.cacheblocks").split(":");
 			    if( conf.get("rhipe.hbase.mozilla.prefix")!=null && conf.get("rhipe.hbase.mozilla.prefix").equals("byteprefix")){
