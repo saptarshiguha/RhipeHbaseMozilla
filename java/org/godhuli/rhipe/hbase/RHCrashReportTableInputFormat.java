@@ -180,7 +180,7 @@ public class RHCrashReportTableInputFormat  extends org.apache.hadoop.mapreduce.
 		Scan[] scans = null;
 		if (conf.get(RHIPE_COLSPEC) != null) {
 			try {
-			    DateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+			    DateFormat formatter = new SimpleDateFormat(conf.get("rhipe.hbase.dateformat"));
 			    String[] cols = conf.get(RHIPE_COLSPEC).split(",");
 			    ArrayList<Pair<String,String>> l = new ArrayList<Pair<String,String>>(cols.length);
 			    Date d1 = (Date)formatter.parse(conf.get("rhipe.hbase.rowlim.start")); 
@@ -190,13 +190,12 @@ public class RHCrashReportTableInputFormat  extends org.apache.hadoop.mapreduce.
 			    for(int i=0;i < cols.length;i++) {
 				String[] x = cols[i].split(":");
 				l.add(new Pair<String,String>(x[0],x[1]));
-				// LOG.info("Added "+x[0]+":"+x[1]);
 			    }
 			    String[] x = conf.get("rhipe.hbase.mozilla.cacheblocks").split(":");
 			    if( conf.get("rhipe.hbase.mozilla.prefix")!=null && conf.get("rhipe.hbase.mozilla.prefix").equals("byteprefix")){
 				LOG.info("Using the byteprefix scanner");
 				scans = Util.generateBytePrefixScans(c1,c2,
-								"yyyyMMdd",
+								conf.get("rhipe.hbase.dateformat"),
 								    l,
 								    Integer.parseInt(x[0]),
 								    Integer.parseInt(x[1]) == 1? true: false);
@@ -204,13 +203,14 @@ public class RHCrashReportTableInputFormat  extends org.apache.hadoop.mapreduce.
 			    }else{
 				LOG.info("Using the hexprefix scanner");
 				scans = Util.generateHexPrefixScans(c1,c2,
-								"yyMMdd",
+								conf.get("rhipe.hbase.dateformat"),
 								    l,
 								    Integer.parseInt(x[0]),
 								    Integer.parseInt(x[1]) == 1? true: false);
 			    }
 			} catch (ParseException e) {
-				LOG.error("An error occurred.", e);
+			    e.printStackTrace();
+			    LOG.error("An error occurred.", e);
 			}
 		} else {
 			scans = new Scan[] { new Scan() };

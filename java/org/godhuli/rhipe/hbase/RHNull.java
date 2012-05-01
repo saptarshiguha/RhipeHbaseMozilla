@@ -27,6 +27,9 @@ public class RHNull extends RHBytesWritable{
 	returnvalue.setRclass(REXP.RClass.NULLTYPE);
 	_nullbytes  = returnvalue.build().toByteArray();
     } 
+    public static byte[] getRawBytes(){
+	return _nullbytes;
+    }
     public RHNull(){
 	super();
 	set(_nullbytes);

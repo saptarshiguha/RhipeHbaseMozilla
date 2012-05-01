@@ -41,6 +41,10 @@ public class RHResult extends RHBytesWritable{
     }
     
     public void makeRObject(Result r){
+	if(r == null) {
+	    super.set(RHNull.getRawBytes());
+	    return;
+	}
 	NavigableMap<byte[],NavigableMap<byte[],byte[]>> nvmp = r.getNoVersionMap();
 	Set<Map.Entry<byte[],NavigableMap<byte[],byte[]>>> eset = nvmp.entrySet();
 	ArrayList<String> l = new ArrayList<String>();
