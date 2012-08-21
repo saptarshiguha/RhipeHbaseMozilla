@@ -185,6 +185,7 @@ public class RHCrashReportTableInputFormat  extends org.apache.hadoop.mapreduce.
 			    ArrayList<Pair<String,String>> l = new ArrayList<Pair<String,String>>(cols.length);
 			    Date d1 = (Date)formatter.parse(conf.get("rhipe.hbase.rowlim.start")); 
 			    Date d2 = (Date)formatter.parse(conf.get("rhipe.hbase.rowlim.end")); 
+			    LOG.info("DEBUG: D1="+d1+" D2="+d2);
 			    Calendar c1=Calendar.getInstance(),c2=Calendar.getInstance();
 			    c1.setTime(d1);c2.setTime(d2);
 			    for(int i=0;i < cols.length;i++) {
@@ -199,6 +200,7 @@ public class RHCrashReportTableInputFormat  extends org.apache.hadoop.mapreduce.
 								    l,
 								    Integer.parseInt(x[0]),
 								    Integer.parseInt(x[1]) == 1? true: false);
+				LOG.info("Dateformat"+conf.get("rhipe.hbase.dateformat")+" c1="+c1+" c2="+c2+" lengthscan="+scans.length);
 
 			    }else{
 				LOG.info("Using the hexprefix scanner");

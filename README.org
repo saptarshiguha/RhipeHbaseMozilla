@@ -14,6 +14,9 @@ The value (the second entry) has the names attribute equal to
 bytes correspond to Java strings, they can be converted using the R
 function =rawToChar=). The keys are also raw bytes.
 
+( To build this, keep Rhipe.jar in the java/lib folder and create that
+folder if necc.)
+
 Some sample R code
 
 #+BEGIN_SRC R
