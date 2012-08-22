@@ -16,6 +16,7 @@ import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.hbase.client.Result;
 import org.godhuli.rhipe.RHBytesWritable;
 import org.godhuli.rhipe.RObjects;
+import org.godhuli.rhipe.RHNull;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

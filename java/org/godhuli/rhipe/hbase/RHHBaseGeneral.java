@@ -51,7 +51,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.util.StringUtils;
 
 import org.godhuli.rhipe.hbase.RHResult;
-import org.godhuli.rhipe.hbase.RHRaw;
+import org.godhuli.rhipe.RHRaw;
 import java.text.ParseException;
 
 /**
