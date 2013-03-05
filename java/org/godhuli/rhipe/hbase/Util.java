@@ -149,7 +149,11 @@ public class Util {
 	s.setCaching(caching);
 	s.setCacheBlocks(cacheBlocks);
 	for (Pair<String,String> pair : columns) {
-	    s.addColumn(pair.getFirst().getBytes(), pair.getSecond().getBytes());
+	    String second = pair.getSecond();
+	    if(second == null)
+		s.addFamily(pair.getFirst().getBytes());
+	    else
+		s.addColumn(pair.getFirst().getBytes(), pair.getSecond().getBytes());
 	}
 	if(st != null) s.setStartRow(Bytes.toBytes(st));
 	if(en != null) s.setStopRow(Bytes.toBytes(en));

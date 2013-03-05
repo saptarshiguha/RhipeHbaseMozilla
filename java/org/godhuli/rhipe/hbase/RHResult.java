@@ -40,31 +40,54 @@ public class RHResult extends RHBytesWritable{
     public void set(Result r){
 	makeRObject(r);
     }
-    
     public void makeRObject(Result r){
 	if(r == null) {
 	    super.set(RHNull.getRawBytes());
 	    return;
 	}
-	NavigableMap<byte[],NavigableMap<byte[],byte[]>> nvmp = r.getNoVersionMap();
-	Set<Map.Entry<byte[],NavigableMap<byte[],byte[]>>> eset = nvmp.entrySet();
-	ArrayList<String> l = new ArrayList<String>();
+	NavigableMap<byte[],NavigableMap<byte[],byte[]>> map = r.getNoVersionMap();
+	ArrayList<String> names = new ArrayList<String>();
 	REXP.Builder b = REXP.newBuilder(template);
-	for(Map.Entry<byte[],NavigableMap<byte[],byte[]>> e : eset){
-	    String family = new String( e.getKey());
-	    Map.Entry<byte[],byte[]> colval = e.getValue().firstEntry();
-	    String column = new String(colval.getKey());
-	    byte[] value = colval.getValue();
-	    l.add( family+":"+column);
-	    REXP.Builder thevals   = REXP.newBuilder();
-	    thevals.setRclass(REXP.RClass.RAW);
-	    thevals.setRawValue(com.google.protobuf.ByteString.copyFrom( value ));
-	    b.addRexpValue( thevals.build() );
+	for(Map.Entry<byte[] , NavigableMap<byte[],byte[]> > entry: map.entrySet()){
+	    String family = new String(entry.getKey());
+	    for(Map.Entry<byte[], byte[]> columns : entry.getValue().entrySet()){
+		String column = new String(columns.getKey());
+		names.add( family +":"+column);
+		REXP.Builder thevals   = REXP.newBuilder();
+		thevals.setRclass(REXP.RClass.RAW);
+		thevals.setRawValue(com.google.protobuf.ByteString.copyFrom( columns.getValue() ));
+		b.addRexpValue( thevals.build() );
+	    }
 	}
 	b.addAttrName("names");
-	b.addAttrValue(RObjects.makeStringVector(l.toArray(_type)));
+	b.addAttrValue(RObjects.makeStringVector(names.toArray(_type)));
 	super.set(b.build().toByteArray());
-	// super.set(RObjects.makeStringVector(l.toArray(_type)).toByteArray());
     }
+
+    // public void makeRObject(Result r){
+    // 	if(r == null) {
+    // 	    super.set(RHNull.getRawBytes());
+    // 	    return;
+    // 	}
+    // 	NavigableMap<byte[],NavigableMap<byte[],byte[]>> nvmp = r.getNoVersionMap();
+    // 	Set<Map.Entry<byte[],NavigableMap<byte[],byte[]>>> eset = nvmp.entrySet();
+    // 	ArrayList<String> l = new ArrayList<String>();
+    // 	REXP.Builder b = REXP.newBuilder(template);
+    // 	for(Map.Entry<byte[],NavigableMap<byte[],byte[]>> e : eset){
+    // 	    String family = new String( e.getKey());
+    // 	    Map.Entry<byte[],byte[]> colval = e.getValue().firstEntry();
+    // 	    String column = new String(colval.getKey());
+    // 	    byte[] value = colval.getValue();
+    // 	    l.add( family+":"+column);
+    // 	    REXP.Builder thevals   = REXP.newBuilder();
+    // 	    thevals.setRclass(REXP.RClass.RAW);
+    // 	    thevals.setRawValue(com.google.protobuf.ByteString.copyFrom( value ));
+    // 	    b.addRexpValue( thevals.build() );
+    // 	}
+    // 	b.addAttrName("names");
+    // 	b.addAttrValue(RObjects.makeStringVector(l.toArray(_type)));
+    // 	super.set(b.build().toByteArray());
+    // 	// super.set(RObjects.makeStringVector(l.toArray(_type)).toByteArray());
+    // }
 
 }

@@ -54,20 +54,9 @@ import org.godhuli.rhipe.hbase.RHResult;
 import org.godhuli.rhipe.RHRaw;
 import java.text.ParseException;
 
-/**
- * Similar to TableInputFormat except this is meant for an array of Scan objects that can
- * be used to delimit row-key ranges.  This allows the usage of hashed dates to be prepended
- * to row keys so that hbase won't create hotspots based on dates, while minimizing the amount
- * of data that must be read during a MapReduce job for a given day.
- * Not TESTED!
- * 
- * Note: Only the first Scan object is used as a template.  The rest are only used for ranges.
- * @author Daniel Einspanjer
- * @author Xavier Stevens
- * @author Saptarshi Guha
- *
- */
-public class RHHBaseGeneral  extends org.apache.hadoop.mapreduce.InputFormat<RHRaw, RHResult> implements Configurable {
+
+public class RHHBaseGeneral  extends org.apache.hadoop.mapreduce.InputFormat<RHRaw, RHResult> 
+    implements Configurable {
 
 	private final Log LOG = LogFactory.getLog(RHCrashReportTableInputFormat.class);
 
@@ -89,7 +78,9 @@ public class RHHBaseGeneral  extends org.apache.hadoop.mapreduce.InputFormat<RHR
 	 * @see org.apache.hadoop.mapreduce.InputFormat#createRecordReader(org.apache.hadoop.mapreduce.InputSplit, org.apache.hadoop.mapreduce.TaskAttemptContext)
 	 */
 	@Override
-	public RecordReader<RHRaw, RHResult> createRecordReader(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
+	public RecordReader<RHRaw, RHResult> 
+	    createRecordReader(InputSplit split, TaskAttemptContext context) 
+	    throws IOException, InterruptedException {
 		if (scans == null) {
 			throw new IOException("No scans were provided");
 		}
@@ -179,8 +170,14 @@ public class RHHBaseGeneral  extends org.apache.hadoop.mapreduce.InputFormat<RHR
 			    ArrayList<Pair<String,String>> l = new ArrayList<Pair<String,String>>(cols.length);
 			    for(int i=0;i < cols.length;i++) {
 				String[] x = cols[i].split(":");
-				l.add(new Pair<String,String>(x[0],x[1]));
-				LOG.info("Added "+x[0]+":"+x[1]);
+				if(x.length==1){
+				    l.add(new Pair<String,String>(x[0],null));
+				    LOG.info("Added family: "+x[0]);
+				}
+				else{
+				    l.add(new Pair<String,String>(x[0],x[1]));
+				    LOG.info("Added "+x[0]+":"+x[1]);
+				}
 			    }
 			    String[] x = conf.get("rhipe.hbase.mozilla.cacheblocks").split(":");
 			    scans = Util.generateScans(conf.get("rhipe.hbase.rowlim.start"),
