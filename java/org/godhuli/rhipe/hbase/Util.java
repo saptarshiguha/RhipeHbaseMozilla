@@ -144,7 +144,7 @@ public class Util {
 	return scans.toArray(new Scan[scans.size()]);
     }
     public static Scan[] generateScans(String st, String en,  ArrayList<Pair<String,String>> columns,int caching, boolean cacheBlocks) {
-	ArrayList<Scan> scans = new ArrayList<Scan>();		
+	ArrayList<Scan> scans = new ArrayList<Scan>();
 	Scan s = new Scan();
 	s.setCaching(caching);
 	s.setCacheBlocks(cacheBlocks);
@@ -155,8 +155,14 @@ public class Util {
 	    else
 		s.addColumn(pair.getFirst().getBytes(), pair.getSecond().getBytes());
 	}
-	if(st != null) s.setStartRow(Bytes.toBytes(st));
-	if(en != null) s.setStopRow(Bytes.toBytes(en));
+	if(st != null) {
+	    	byte[] stb1 = org.apache.commons.codec.binary.Base64.decodeBase64(st);
+		s.setStartRow(stb1);
+	}
+	if(en != null) {
+	    byte[] enb2 = org.apache.commons.codec.binary.Base64.decodeBase64(en);
+	    s.setStopRow(enb2);
+	}
 	scans.add(s);
 	return scans.toArray(new Scan[scans.size()]);
     }

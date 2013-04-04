@@ -183,8 +183,10 @@ public class RHCrashReportTableInputFormat  extends org.apache.hadoop.mapreduce.
 			    DateFormat formatter = new SimpleDateFormat(conf.get("rhipe.hbase.dateformat"));
 			    String[] cols = conf.get(RHIPE_COLSPEC).split(",");
 			    ArrayList<Pair<String,String>> l = new ArrayList<Pair<String,String>>(cols.length);
-			    Date d1 = (Date)formatter.parse(conf.get("rhipe.hbase.rowlim.start")); 
-			    Date d2 = (Date)formatter.parse(conf.get("rhipe.hbase.rowlim.end")); 
+			    String ss1  = new String(org.apache.commons.codec.binary.Base64.decodeBase64(conf.get("rhipe.hbase.rowlim.start")));
+			    String ss2  = new String(org.apache.commons.codec.binary.Base64.decodeBase64(conf.get("rhipe.hbase.rowlim.end")));
+			    Date d1 = (Date)formatter.parse(ss1); 
+			    Date d2 = (Date)formatter.parse(ss2);
 			    LOG.info("DEBUG: D1="+d1+" D2="+d2);
 			    Calendar c1=Calendar.getInstance(),c2=Calendar.getInstance();
 			    c1.setTime(d1);c2.setTime(d2);
