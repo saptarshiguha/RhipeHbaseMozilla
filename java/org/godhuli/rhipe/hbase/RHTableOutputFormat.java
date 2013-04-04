@@ -73,18 +73,19 @@ public class RHTableOutputFormat extends TableOutputFormat {
 	    table.close();
 	}
 	public void write(RHBytesWritable key, RHBytesWritable value) throws IOException {
-	    System.err.println(key);
-	    System.err.println(value);
-	    System.err.println("_______________");
-	    Put p = new Put(key.getActualBytes());
-	    REXP a = REXP.parseFrom(value.getActualBytes());
-	    int n = a.getRexpValueCount();
-	    REXP cfs = a.getAttrValue(0);
-	    for(int i=0;i<n;i++){
-		String[] cfcq = cfs.getStringValue(i).getStrval().split(":");
-		p.add(cfcq[0].getBytes(),cfcq[1].getBytes(),a.getRexpValue(i).toByteArray());
+	    try{
+		Put p = new Put(key.getActualBytes());
+		REXP a = REXP.parseFrom(value.getActualBytes());
+		int n = a.getRexpValueCount();
+		REXP cfs = a.getAttrValue(0);
+		for(int i=0;i<n;i++){
+		    String[] cfcq = cfs.getStringValue(i).getStrval().split(":");
+		    p.add(cfcq[0].getBytes(),cfcq[1].getBytes(),a.getRexpValue(i).toByteArray());
+		}
+		table.put(p);
+	    }catch(Exception e){
+		throw new IOException("RHIPE:"+e);
 	    }
-	    table.put(p);
 	}
     }
 
