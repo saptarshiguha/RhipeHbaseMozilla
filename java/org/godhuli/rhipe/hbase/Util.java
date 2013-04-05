@@ -148,12 +148,14 @@ public class Util {
 	Scan s = new Scan();
 	s.setCaching(caching);
 	s.setCacheBlocks(cacheBlocks);
-	for (Pair<String,String> pair : columns) {
-	    String second = pair.getSecond();
-	    if(second == null)
-		s.addFamily(pair.getFirst().getBytes());
-	    else
-		s.addColumn(pair.getFirst().getBytes(), pair.getSecond().getBytes());
+	if(columns !=null){
+	    for (Pair<String,String> pair : columns) {
+		String second = pair.getSecond();
+		if(second == null)
+		    s.addFamily(pair.getFirst().getBytes());
+		else
+		    s.addColumn(pair.getFirst().getBytes(), pair.getSecond().getBytes());
+	    }
 	}
 	if(st != null) {
 	    	byte[] stb1 = org.apache.commons.codec.binary.Base64.decodeBase64(st);

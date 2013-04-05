@@ -167,16 +167,18 @@ public class RHHBaseGeneral  extends org.apache.hadoop.mapreduce.InputFormat<RHR
 		if (conf.get(RHIPE_COLSPEC) != null) {
 			try {
 			    String[] cols = conf.get(RHIPE_COLSPEC).split(",");
-			    ArrayList<Pair<String,String>> l = new ArrayList<Pair<String,String>>(cols.length);
-			    for(int i=0;i < cols.length;i++) {
-				String[] x = cols[i].split(":");
-				if(x.length==1){
-				    l.add(new Pair<String,String>(x[0],null));
-				    LOG.info("Added family: "+x[0]);
-				}
-				else{
-				    l.add(new Pair<String,String>(x[0],x[1]));
-				    LOG.info("Added "+x[0]+":"+x[1]);
+			    ArrayList<Pair<String,String>> l = null;
+			    if(cols.length > 0){
+				l = new ArrayList<Pair<String,String>>(cols.length);
+				for(int i=0;i < cols.length;i++) {
+				    String[] x = cols[i].split(":");
+				    if(x.length==1){
+					l.add(new Pair<String,String>(x[0],null));
+					LOG.info("Added family: "+x[0]);
+				    } else{
+					l.add(new Pair<String,String>(x[0],x[1]));
+					LOG.info("Added "+x[0]+":"+x[1]);
+				    }
 				}
 			    }
 			    String[] x = conf.get("rhipe.hbase.mozilla.cacheblocks").split(":");
