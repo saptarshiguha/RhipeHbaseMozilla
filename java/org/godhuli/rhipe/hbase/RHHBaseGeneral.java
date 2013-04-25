@@ -60,7 +60,9 @@ public class RHHBaseGeneral  extends org.apache.hadoop.mapreduce.InputFormat<RHR
 
 	private final Log LOG = LogFactory.getLog(RHCrashReportTableInputFormat.class);
 
-
+	public static boolean ValueIsString = false;
+	public static boolean SingleCFQ = false;
+	public static byte[][][] CFQ;
 	/** Job parameter that specifies the input table. */
 	public static final String INPUT_TABLE = "rhipe.hbase.tablename";
 	
@@ -155,6 +157,10 @@ public class RHHBaseGeneral  extends org.apache.hadoop.mapreduce.InputFormat<RHR
 	@Override
 	public void setConf(Configuration conf) {
 		this.conf = conf;
+		RHHBaseGeneral.ValueIsString  = conf.get("rhipe_hbase_values_are_string")!=null  
+		    && conf.get("rhipe_hbase_values_are_string").equals("TRUE");
+		RHHBaseGeneral.SingleCFQ  = conf.get("rhipe.hbase.single.cfq")!=null  
+		    && conf.get("rhipe.hbase.single.cfq").equals("TRUE");
 		
 		String tableName = conf.get(INPUT_TABLE);
 		try {
@@ -167,17 +173,21 @@ public class RHHBaseGeneral  extends org.apache.hadoop.mapreduce.InputFormat<RHR
 		if (conf.get(RHIPE_COLSPEC) != null) {
 			try {
 			    String[] cols = conf.get(RHIPE_COLSPEC).split(",");
+			    CFQ = new byte[cols.length][][];
 			    ArrayList<Pair<String,String>> l = null;
 			    if(cols.length > 0){
 				l = new ArrayList<Pair<String,String>>(cols.length);
 				for(int i=0;i < cols.length;i++) {
+				    CFQ[i] = new byte[2][];
 				    String[] x = cols[i].split(":");
 				    if(x.length==1){
 					l.add(new Pair<String,String>(x[0],null));
 					LOG.info("Added family: "+x[0]);
 				    } else{
 					l.add(new Pair<String,String>(x[0],x[1]));
-					LOG.info("Added "+x[0]+":"+x[1]);
+					LOG.info("Added CF:Qualifier"+x[0]+":"+x[1]);
+					CFQ[i][0] = x[0].getBytes();
+					CFQ[i][1] = x[1].getBytes();
 				    }
 				}
 			    }

@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 public class RHResult extends RHBytesWritable{
 
     private Result _result;
-    private static REXP template;
+    private static REXP template,templateOne;
     private static String[] _type = new String[]{};
     private final Log LOG = LogFactory.getLog(RHResult.class);
 
@@ -31,6 +31,10 @@ public class RHResult extends RHBytesWritable{
 	REXP.Builder templatebuild  = REXP.newBuilder();
 	templatebuild.setRclass(REXP.RClass.LIST);
 	template = templatebuild.build();
+
+	// templatebuild  = REXP.newBuilder();
+	// templatebuild.setRclass(REXP.RClass.RAW);
+	// templateOne = templatebuild.build();
     } 
 
     public RHResult(){
@@ -45,17 +49,31 @@ public class RHResult extends RHBytesWritable{
 	    super.set(RHNull.getRawBytes());
 	    return;
 	}
+	REXP.Builder b;
 	NavigableMap<byte[],NavigableMap<byte[],byte[]>> map = r.getNoVersionMap();
 	ArrayList<String> names = new ArrayList<String>();
-	REXP.Builder b = REXP.newBuilder(template);
+	// if(RHHBaseGeneral.SingleCFQ){
+	//     Map.Entry<byte[],NavigableMap<byte[],byte[]>> entry = map.firstEntry();
+	//     byte[] by = entry.getValue().firstEntry().getValue();
+	//     b = REXP.newBuilder(templateOne);
+	//     b.setRawValue(com.google.protobuf.ByteString.copyFrom( by ));
+	// }else{
+	b = REXP.newBuilder(template);
 	for(Map.Entry<byte[] , NavigableMap<byte[],byte[]> > entry: map.entrySet()){
 	    String family = new String(entry.getKey());
 	    for(Map.Entry<byte[], byte[]> columns : entry.getValue().entrySet()){
 		String column = new String(columns.getKey());
 		names.add( family +":"+column);
 		REXP.Builder thevals   = REXP.newBuilder();
-		thevals.setRclass(REXP.RClass.RAW);
-		thevals.setRawValue(com.google.protobuf.ByteString.copyFrom( columns.getValue() ));
+		if(RHHBaseGeneral.ValueIsString){
+		    thevals.setRclass(REXP.RClass.STRING);
+		    REXPProtos.STRING.Builder content=REXPProtos.STRING.newBuilder();
+		    content.setStrval(new String(columns.getValue()));
+		    thevals.addStringValue(content.build());
+		}else{
+		    thevals.setRclass(REXP.RClass.RAW);
+		    thevals.setRawValue(com.google.protobuf.ByteString.copyFrom( columns.getValue() ));
+		}
 		b.addRexpValue( thevals.build() );
 	    }
 	}
