@@ -133,25 +133,26 @@ public class RHCrashReportTableInputFormat  extends org.apache.hadoop.mapreduce.
 		}
 
 		Set<InputSplit> splits = new HashSet<InputSplit>();
+		LOG.info("Computing splits(nregion="+keys.getFirst().length+") for scans("+scans.length+ ") might take some time");
+		long a1 = System.currentTimeMillis();
 		for (int i = 0; i < keys.getFirst().length; i++) {
-			String regionLocation = table.getRegionLocation(keys.getFirst()[i]).getServerAddress().getHostname();
+		    String regionLocation = table.getRegionLocation(keys.getFirst()[i]).getServerAddress().getHostname();
+		    for (Scan s : scans) {
+			byte[] startRow = s.getStartRow();
+			byte[] stopRow = s.getStopRow();
 			
-			for (Scan s : scans) {
-				byte[] startRow = s.getStartRow();
-				byte[] stopRow = s.getStopRow();
-				
-				// determine if the given start an stop key fall into the region
-				if ((startRow.length == 0 || keys.getSecond()[i].length == 0 || Bytes.compareTo(startRow, keys.getSecond()[i]) < 0) && 
-					 (stopRow.length == 0 || Bytes.compareTo(stopRow, keys.getFirst()[i]) > 0)) {
-					byte[] splitStart = startRow.length == 0 || Bytes.compareTo(keys.getFirst()[i], startRow) >= 0 ? keys.getFirst()[i]	: startRow;
-					byte[] splitStop = (stopRow.length == 0 || Bytes.compareTo(keys.getSecond()[i], stopRow) <= 0) 
-										&& keys.getSecond()[i].length > 0 ? keys.getSecond()[i] : stopRow;
-					InputSplit split = new TableSplit(table.getTableName(), splitStart, splitStop, regionLocation);
-					splits.add(split);
-				}
+			// determine if the given start an stop key fall into the region
+			if ((startRow.length == 0 || keys.getSecond()[i].length == 0 || Bytes.compareTo(startRow, keys.getSecond()[i]) < 0) && 
+			    (stopRow.length == 0 || Bytes.compareTo(stopRow, keys.getFirst()[i]) > 0)) {
+			    byte[] splitStart = startRow.length == 0 || Bytes.compareTo(keys.getFirst()[i], startRow) >= 0 ? keys.getFirst()[i]	: startRow;
+			    byte[] splitStop = (stopRow.length == 0 || Bytes.compareTo(keys.getSecond()[i], stopRow) <= 0) 
+				&& keys.getSecond()[i].length > 0 ? keys.getSecond()[i] : stopRow;
+			    InputSplit split = new TableSplit(table.getTableName(), splitStart, splitStop, regionLocation);
+			    splits.add(split);
 			}
+		    }
 		}
-		
+		LOG.info(String.format("Retreived input splits in %.3f seconds", (System.currentTimeMillis() - a1)/1000.0));
 		return new ArrayList<InputSplit>(splits);
 	}
 
@@ -202,7 +203,7 @@ public class RHCrashReportTableInputFormat  extends org.apache.hadoop.mapreduce.
 								    l,
 								    Integer.parseInt(x[0]),
 								    Integer.parseInt(x[1]) == 1? true: false);
-				LOG.info("Dateformat"+conf.get("rhipe.hbase.dateformat")+" c1="+c1+" c2="+c2+" lengthscan="+scans.length);
+				// LOG.info("Dateformat"+conf.get("rhipe.hbase.dateformat")+" c1="+c1+" c2="+c2+" lengthscan="+scans.length);
 
 			    }else{
 				LOG.info("Using the hexprefix scanner");
@@ -219,7 +220,6 @@ public class RHCrashReportTableInputFormat  extends org.apache.hadoop.mapreduce.
 		} else {
 			scans = new Scan[] { new Scan() };
 		}
-		
 		setScans(scans);
 	}
 

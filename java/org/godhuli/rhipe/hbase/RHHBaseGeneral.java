@@ -59,9 +59,7 @@ public class RHHBaseGeneral  extends org.apache.hadoop.mapreduce.InputFormat<RHR
     implements Configurable {
 
 	private final Log LOG = LogFactory.getLog(RHCrashReportTableInputFormat.class);
-
-	public static boolean ValueIsString = false;
-	public static boolean SingleCFQ = false;
+	public static int valueType;
 	public static byte[][][] CFQ;
 	/** Job parameter that specifies the input table. */
 	public static final String INPUT_TABLE = "rhipe.hbase.tablename";
@@ -156,11 +154,13 @@ public class RHHBaseGeneral  extends org.apache.hadoop.mapreduce.InputFormat<RHR
 	 */
 	@Override
 	public void setConf(Configuration conf) {
-		this.conf = conf;
-		RHHBaseGeneral.ValueIsString  = conf.get("rhipe_hbase_values_are_string")!=null  
-		    && conf.get("rhipe_hbase_values_are_string").equals("TRUE");
-		RHHBaseGeneral.SingleCFQ  = conf.get("rhipe.hbase.single.cfq")!=null  
-		    && conf.get("rhipe.hbase.single.cfq").equals("TRUE");
+	    this.conf = conf;
+	    String ss  = conf.get("rhipe.hbase.value.type");
+	    if(ss.equals("raw"))
+		RHHBaseGeneral.valueType = 0;
+	    else if(ss.equals("json"))
+		RHHBaseGeneral.valueType = 1;
+	    else RHHBaseGeneral.valueType = 0;
 		
 		String tableName = conf.get(INPUT_TABLE);
 		try {
